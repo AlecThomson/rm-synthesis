@@ -318,8 +318,7 @@ def rmsynthesis_dirty_lowmem(qname, uname, q_factor, u_factor,
             wl2_frame = wl2_norm[frame_id]
             phases = phases_lambda2_to_phi(wl2_frame, phi_array)
             for frame, phase in enumerate(phases):
-                if isnan(p_complex)==True or isnan(phase)==True: continue
-                else: rmcube[frame, :, :] += p_complex*phase
+                rmcube[frame, :, :] = nansum(np.dstack((rmcube[frame, :, :],p_complex*phase)),2)
         gc.collect()
         frame_id += 1
     frames_added = nfreq - skipped_frames
@@ -367,8 +366,7 @@ def rmsynthesis_crosscorr_dirty_lowmem(q_template_name, u_template_name,
             wl2_frame = wl2_norm[frame_id]
             phases = phases_lambda2_to_phi(wl2_frame, phi_array)
             for frame, phase in enumerate(phases):
-                if isnan(p_complex)==True or isnan(phase)==True: continue
-                else: rmcube[frame, :, :] += p_complex*phase
+                rmcube[frame, :, :] = nansum(np.dstack((rmcube[frame, :, :],p_complex*phase)),2)
         gc.collect()
         frame_id += 1
     frames_added = nfreq - skipped_frames
@@ -394,8 +392,7 @@ def rmsynthesis_worker(queue, shared_arr, frame_shape, phi_array):
             wl2_frame = item
             phases = phases_lambda2_to_phi(wl2_frame, phi_array)
             for frame, phase in enumerate(phases):
-                if isnan(p_complex)==True or isnan(phase)==True: continue
-                else: rmcube[frame, :, :] += p_complex*phase
+                rmcube[frame, :, :] = nansum(np.dstack((rmcube[frame, :, :],p_complex*phase)),2)
             gc.collect()
             queue.task_done()
 
