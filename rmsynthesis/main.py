@@ -6,6 +6,7 @@ from numpy import exp, newaxis, array, zeros, floor   #pylint: disable=E0611
 from numpy import concatenate, real, imag, frombuffer #pylint: disable=E0611
 from numpy import complex64, array_split, absolute    #pylint: disable=E0611
 from numpy import float32                             #pylint: disable=E0611
+from numpy import nansum, isnan
 
 import multiprocessing as mp
 import gc, os, sys, ctypes, logging
@@ -279,7 +280,7 @@ def rmsynthesis_dirty(qcube, ucube, frequencies, phi_array):
     for i, phi in enumerate(phi_array):
         logging.info('processing frame %4d/%d, phi = %7.1f' % (i+1, num, phi))
         phases = phases_lambda2_to_phi(wl2-wl2_0, phi)[:, newaxis, newaxis]
-        rmcube[i, :, :] = np.nansum((p_complex*phases),axis=0)/nfreq
+        rmcube[i, :, :] = nansum((p_complex*phases),axis=0)/nfreq
     return rmcube
 
 
@@ -317,7 +318,7 @@ def rmsynthesis_dirty_lowmem(qname, uname, q_factor, u_factor,
             wl2_frame = wl2_norm[frame_id]
             phases = phases_lambda2_to_phi(wl2_frame, phi_array)
             for frame, phase in enumerate(phases):
-                if np.isnan(p_complex)==True or np.isnan(phase)==True: continue
+                if isnan(p_complex)==True or isnan(phase)==True: continue
                 else: rmcube[frame, :, :] += p_complex*phase
         gc.collect()
         frame_id += 1
@@ -366,7 +367,7 @@ def rmsynthesis_crosscorr_dirty_lowmem(q_template_name, u_template_name,
             wl2_frame = wl2_norm[frame_id]
             phases = phases_lambda2_to_phi(wl2_frame, phi_array)
             for frame, phase in enumerate(phases):
-                if np.isnan(p_complex)==True or np.isnan(phase)==True: continue
+                if isnan(p_complex)==True or isnan(phase)==True: continue
                 else: rmcube[frame, :, :] += p_complex*phase
         gc.collect()
         frame_id += 1
@@ -393,7 +394,7 @@ def rmsynthesis_worker(queue, shared_arr, frame_shape, phi_array):
             wl2_frame = item
             phases = phases_lambda2_to_phi(wl2_frame, phi_array)
             for frame, phase in enumerate(phases):
-                if np.isnan(p_complex)==True or np.isnan(phase)==True: continue
+                if isnan(p_complex)==True or isnan(phase)==True: continue
                 else: rmcube[frame, :, :] += p_complex*phase
             gc.collect()
             queue.task_done()
