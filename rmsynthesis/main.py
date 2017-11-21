@@ -6,7 +6,7 @@ from numpy import exp, newaxis, array, zeros, floor   #pylint: disable=E0611
 from numpy import concatenate, real, imag, frombuffer #pylint: disable=E0611
 from numpy import complex64, array_split, absolute    #pylint: disable=E0611
 from numpy import float32                             #pylint: disable=E0611
-from numpy import nansum, isnan
+from numpy import nansum, isnan, dstack
 
 import multiprocessing as mp
 import gc, os, sys, ctypes, logging
@@ -318,7 +318,7 @@ def rmsynthesis_dirty_lowmem(qname, uname, q_factor, u_factor,
             wl2_frame = wl2_norm[frame_id]
             phases = phases_lambda2_to_phi(wl2_frame, phi_array)
             for frame, phase in enumerate(phases):
-                rmcube[frame, :, :] = nansum(np.dstack((rmcube[frame, :, :],p_complex*phase)),2)
+                rmcube[frame, :, :] = nansum(dstack((rmcube[frame, :, :],p_complex*phase)),2)
         gc.collect()
         frame_id += 1
     frames_added = nfreq - skipped_frames
@@ -366,7 +366,7 @@ def rmsynthesis_crosscorr_dirty_lowmem(q_template_name, u_template_name,
             wl2_frame = wl2_norm[frame_id]
             phases = phases_lambda2_to_phi(wl2_frame, phi_array)
             for frame, phase in enumerate(phases):
-                rmcube[frame, :, :] = nansum(np.dstack((rmcube[frame, :, :],p_complex*phase)),2)
+                rmcube[frame, :, :] = nansum(dstack((rmcube[frame, :, :],p_complex*phase)),2)
         gc.collect()
         frame_id += 1
     frames_added = nfreq - skipped_frames
@@ -392,7 +392,7 @@ def rmsynthesis_worker(queue, shared_arr, frame_shape, phi_array):
             wl2_frame = item
             phases = phases_lambda2_to_phi(wl2_frame, phi_array)
             for frame, phase in enumerate(phases):
-                rmcube[frame, :, :] = nansum(np.dstack((rmcube[frame, :, :],p_complex*phase)),2)
+                rmcube[frame, :, :] = nansum(dstack((rmcube[frame, :, :],p_complex*phase)),2)
             gc.collect()
             queue.task_done()
 
